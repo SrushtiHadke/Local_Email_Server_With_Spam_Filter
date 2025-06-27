@@ -1,0 +1,12 @@
+MAILDIR=$HOME/Maildir
+DEFAULT=$MAILDIR/
+LOGFILE=$HOME/procmail.log
+
+
+:0
+* ? /home/chatgpt/final_spam.py
+$MAILDIR/.Spam/
+
+
+:0
+$MAILDIR/
