@@ -1,63 +1,74 @@
 #!/usr/bin/env python3
-
 import joblib
-import string
-import sys
 import re
-import warnings
+import sys
+import numpy as np
 from email import message_from_string
-from sklearn.exceptions import InconsistentVersionWarning
-import os
 
-warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+# Load models
+try:
+    vectorizer = joblib.load('/home/chatgpt/email_vectorizer.pkl')
+    model = joblib.load('/home/chatgpt/email_model.pkl')
+    with open('/home/chatgpt/threshold.txt') as f:
+        threshold = float(f.read())
+except Exception as e:
+    print(f"Error loading models: {e}", file=sys.stderr)
+    sys.exit(1)
 
-# Load model and vectorizer
-model = joblib.load('/home/chatgpt/email_spam_rf_calibrated.pkl')
-vectorizer = joblib.load('/home/chatgpt/email_tfidf_vectorizer.pkl')
-
-# Use default threshold
-threshold = 0.5
-
-#  Clean incoming email
+# Text cleaning 
 def clean_text(text):
     text = text.lower()
     text = re.sub(r'<[^>]+>', '', text)
-    text = re.sub(r'\d+', '', text)
-    text = re.sub(r'\s+', ' ', text)
-    text = text.translate(str.maketrans('', '', string.punctuation))
-    return text.strip()
+    text = re.sub(r'http\S+|www\S+|https\S+', ' URL ', text)
+    text = re.sub(r'\b[\w\.-]+@[\w\.-]+\.\w+\b', ' EMAIL ', text)
+    text = re.sub(r'\d+', ' NUM ', text)
+    text = re.sub(r'[^\w\s]', '', text)
+    return re.sub(r'\s+', ' ', text).strip()
 
-#  Read raw email
-raw_email = sys.stdin.read()
-email_msg = message_from_string(raw_email)
-subject = email_msg.get('Subject', '')
-body = ''
+# Whitelist rules
+SAFE_PHRASES = [
+    "birthday wishes", "invoice payment",
+    "meeting reminder", "your order"
+]
 
-if email_msg.is_multipart():
-    for part in email_msg.walk():
-        if part.get_content_type() == 'text/plain':
-            try:
-                body += part.get_payload(decode=True).decode(errors='ignore')
-            except:
-                pass
-else:
-    try:
-        body = email_msg.get_payload(decode=True).decode(errors='ignore')
-    except:
-        body = ''
+def is_safe(text):
+    return any(phrase in text.lower() for phrase in SAFE_PHRASES)
 
-full_text = clean_text(subject + ' ' + body)
-msg_vec = vectorizer.transform([full_text])
+def extract_email_text(raw_email):
+    msg = message_from_string(raw_email)
+    subject = msg.get('Subject', '')
+    body = ''
 
-#  Predict
-proba = model.predict_proba(msg_vec)
-spam_prob = proba[0][1]
-pred = model.predict(msg_vec)
-label = "Spam" if pred[0] == 1 else "Ham"
+    if msg.is_multipart():
+        for part in msg.walk():
+            if part.get_content_type() == 'text/plain':
+                try:
+                    body += part.get_payload(decode=True).decode(errors='ignore')
+                except:
+                    pass
+    else:
+        try:
+            body = msg.get_payload(decode=True).decode(errors='ignore')
+        except:
+            pass
 
-#  Output
-print(f"[DEBUG] Probabilities (Ham, Spam): {proba[0]}", file=sys.stderr)
-print(f"{label} (spam probability: {spam_prob:.3f})", file=sys.stderr)
+    return f"{subject} {body}"
 
-# Return appropriate exit code for procmail
-sys.exit(0 if label == "Spam" else 1)
+if __name__ == "__main__":
+    raw_email = sys.stdin.read()
+    full_text = extract_email_text(raw_email)
+    cleaned = clean_text(full_text)
+
+    if is_safe(cleaned):
+        print("Ham", file=sys.stderr)
+        sys.exit(1)
+
+    X = vectorizer.transform([cleaned])
+    spam_prob = 1 / (1 + np.exp(-model.decision_function(X)[0]))  # Sigmoid
+
+    if spam_prob >= threshold:
+        print(f"Spam ({spam_prob:.4f})", file=sys.stderr)
+        sys.exit(0)
+    else:
+        print(f"Ham ({spam_prob:.4f})", file=sys.stderr)
+        sys.exit(1)
