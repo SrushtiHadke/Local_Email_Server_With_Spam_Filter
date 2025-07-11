@@ -76,7 +76,9 @@ Full classification report available on executing final_model.py.
 
 1️⃣ Train the Model
 
+```
 python3 final_model.py
+```
 
 Generates:
 
@@ -88,7 +90,9 @@ Generates:
 
 2️⃣ Classify Emails
 
+```
 echo "raw email content" | python3 final_spam.py
+```
 
 Outputs prediction and probability score via stderr and exit status for system integration.
 
