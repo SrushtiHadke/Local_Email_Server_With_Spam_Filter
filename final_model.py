@@ -2,14 +2,14 @@
 import pandas as pd
 import re
 import string
-import joblib  # Changed from numpy for pickle support
+import joblib  
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import classification_report, accuracy_score
 from imblearn.over_sampling import SMOTE
 
-# Data Loading (unchanged)
+# Data Loading 
 def load_data():
     df_main = pd.read_csv('spam_ham_dataset.csv')
     df_aug = pd.read_csv('ham_augmented.csv')
@@ -17,7 +17,7 @@ def load_data():
     df_aug['label_num'] = df_aug['label'].map({'ham': 0})
     return pd.concat([df_main[['text', 'label_num']], df_aug[['text', 'label_num']]])
 
-# Text Cleaning (unchanged)
+# Text Cleaning 
 def clean_text(text):
     text = text.lower()
     text = re.sub(r'<[^>]+>', '', text)
