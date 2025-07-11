@@ -65,7 +65,7 @@ Precision (Spam): 0.96
 
 Recall (Spam): 0.97
 
-Full classification report available on executing final3.py.
+Full classification report available on executing final_model.py.
 📦 Dataset
 
     spam_ham_dataset.csv → Original labeled spam and ham emails
@@ -76,7 +76,7 @@ Full classification report available on executing final3.py.
 
 1️⃣ Train the Model
 
-python3 model.py
+python3 final_model.py
 
 Generates:
 
@@ -88,13 +88,13 @@ Generates:
 
 2️⃣ Classify Emails
 
-echo "raw email content" | python3 spam.py
+echo "raw email content" | python3 final_spam.py
 
 Outputs prediction and probability score via stderr and exit status for system integration.
 
 3️⃣ Integrate with Postfix
 
-    Configure Postfix to pipe emails through final_spam3.py
+    Configure Postfix to pipe emails through final_spam.py
 
     Route emails based on exit status (0 = Spam, 1 = Ham)
 
