@@ -1,63 +1,128 @@
-# 📧 Email Spam Filtering System
+📧 Local Email Spam Filtering System
 
-A machine learning-based Email Spam Filtering System developed using Python and Scikit-learn. This project classifies incoming emails as **Spam** or **Ham (legitimate)** using a trained Random Forest classifier with probability calibration for better reliability.
+A machine learning-based Local Email Spam Filtering System developed using Python and Scikit-learn.
+This project classifies incoming emails as Spam or Ham (legitimate) using a trained SGDClassifier with logistic regression loss for reliable probability estimation, and integrates seamlessly with a local email server setup for real-time email filtering.
+📖 About the Project
 
----
+This project aims to automatically detect and filter out spam emails from legitimate ones using machine learning techniques.
+It uses an SGD Classifier (Log Loss) trained on labeled email datasets and applies TF-IDF vectorization for extracting text-based features.
 
-## 📖 About the Project
+Additionally, the system includes:
 
-The Email Spam Filtering System aims to automatically detect and filter out spam emails from legitimate ones using machine learning techniques. It uses a **Random Forest Classifier** trained on labeled email datasets and applies **TF-IDF vectorization** for text feature extraction.
+    SMOTE (Synthetic Minority Oversampling Technique) to balance the dataset.
 
-The system can be integrated with a local email server setup using **Postfix**, **Dovecot**, and **Procmail** for real-time spam filtering on received emails.
+    Custom threshold control for adjusting spam detection sensitivity.
 
----
+    Whitelisting of safe phrases to bypass spam classification for trusted content.
 
-## ✨ Features
+    Integration capability with Postfix, Dovecot, and Mutt for local email delivery and sorting.
 
-- Classifies emails as **Spam** or **Ham**
-- Uses **TF-IDF** vectorizer for text feature extraction
-- Implements **Calibrated Random Forest Classifier** for better probability estimates
-- Command-line based prediction from raw email text
-- Can be integrated with Linux email services for automatic email sorting
-- Outputs classification report including **accuracy, precision, recall, and F1-score**
+✨ Features
 
----
+    Classifies incoming emails as Spam or Ham
 
-## 🛠️ Technologies Used
+    Uses TF-IDF vectorization with bigrams for text feature extraction
 
-- Python 3.x
-- Scikit-learn
-- Pandas
-- NumPy
-- Joblib
-- Procmail (for email filtering)
-- Postfix & Dovecot (optional integration for local email server)
+    Employs SGDClassifier with Log Loss for faster, scalable model training
 
----
+    Handles class imbalance using SMOTE
 
+    Implements custom probability thresholding for classification decisions
+
+    Whitelist-based fast Ham detection for known safe phrases (e.g., "birthday wishes", "invoice payment")
+
+    Command-line compatible email prediction via stdin
+
+    Easily pluggable into Postfix email pipelines
+
+    Outputs classification report with accuracy, precision, recall, and F1-score
+
+🛠️ Technologies Used
+
+    Python 3.x
+
+    Scikit-learn
+
+    Imbalanced-learn
+
+    Pandas
+
+    NumPy
+
+    Joblib
+
+    Postfix & Dovecot (for local email server integration)
+
+    Mutt (for email reading)
+
+    Procmail (optional, for rule-based email handling)
 
 📈 Results
 
-    Accuracy: 97.01%
+Validation Accuracy: 97.89%
 
-    Precision (Spam): 0.96
+Precision (Spam): 0.96
 
-    Recall (Spam): 0.97
+Recall (Spam): 0.97
 
-Classification report available via final_model.py execution.
+Full classification report available on executing final3.py.
+📦 Dataset
+
+    spam_ham_dataset.csv → Original labeled spam and ham emails
+
+    ham_augmented.csv → Manually augmented ham emails for improved dataset balance
+
+🚀 How to Use
+
+1️⃣ Train the Model
+
+python3 model.py
+
+Generates:
+
+    email_model.pkl
+
+    email_vectorizer.pkl
+
+    threshold.txt
+
+2️⃣ Classify Emails
+
+echo "raw email content" | python3 spam.py
+
+Outputs prediction and probability score via stderr and exit status for system integration.
+
+3️⃣ Integrate with Postfix
+
+    Configure Postfix to pipe emails through final_spam3.py
+
+    Route emails based on exit status (0 = Spam, 1 = Ham)
+
+📑 Whitelist Rules
+
+Automatically marks emails as Ham if they contain any of these phrases:
+
+    birthday wishes
+
+    invoice payment
+
+    meeting reminder
+
+    your order
+
 🌱 Future Enhancements
 
-    Integration with web-based email clients
+    Add HTML and rich-text email parsing
 
-    Use of deep learning models (e.g., LSTM/Transformer-based classifiers)
+    Integrate explainable AI (SHAP, LIME) for transparency in predictions
 
-    Improved dataset diversity
+    Deploy a Gradio/Flask dashboard for live spam filtering stats
 
-    Interactive dashboard for email classification visualization
+    Extend dataset with diverse email samples and attachments handling
+
+    Experiment with Transformer-based models (e.g., BERT) for text classification
 
 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome!
-Feel free to fork the repository and submit a pull request.
-
-
+Feel free to fork this repository, open an issue, or submit a pull request.
