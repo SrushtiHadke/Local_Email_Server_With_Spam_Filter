@@ -2,6 +2,7 @@
 
 A machine learning-based Local Email Spam Filtering System developed using Python and Scikit-learn.
 This project classifies incoming emails as Spam or Ham (legitimate) using a trained SGDClassifier with logistic regression loss for reliable probability estimation, and integrates seamlessly with a local email server setup for real-time email filtering.
+
 📖 About the Project
 
 This project aims to automatically detect and filter out spam emails from legitimate ones using machine learning techniques.
